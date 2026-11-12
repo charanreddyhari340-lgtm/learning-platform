@@ -56,7 +56,7 @@ Trainer / Guide: **Ajusha**
 | Database | MongoDB with Mongoose 8 (Atlas or in-memory) |
 | Auth | JWT, bcryptjs |
 | Payments | PayPal REST API, `@paypal/react-paypal-js` |
-| Deployment | Vercel, MongoDB Atlas |
+| Deployment | Vercel (frontend), Render (API), MongoDB Atlas |
 
 ## Project Structure
 
@@ -134,6 +134,25 @@ npm start        # serves the API and the built client on http://localhost:5000
 |---|---|
 | `VITE_PAYPAL_CLIENT_ID` | PayPal client ID for the checkout buttons |
 | `VITE_PAYPAL_CURRENCY` | Currency, default `INR` |
+
+## Deployment
+
+The frontend is deployed to Vercel and the Express API to Render. The root
+`vercel.json` builds `client/` and proxies `/api/*` and `/uploads/*` requests
+to `https://learning-platform-j8aa.onrender.com`.
+
+1. Deploy the repository's `main` branch as a Render Web Service. Use
+   `npm install --prefix server && npm install --prefix client && npm run build --prefix client`
+   as the build command and `npm start` as the start command.
+2. Set `MONGODB_URI` and `JWT_SECRET` in the Render service's Environment
+   settings. Add the PayPal server credentials there if enabling payments.
+3. Import the same GitHub repository into Vercel using the repository root as
+   the project root. Vercel uses `vercel.json` to build the client and route API
+   and upload requests through Render.
+4. Add `VITE_PAYPAL_CLIENT_ID` and `VITE_PAYPAL_CURRENCY` in Vercel before
+   building if enabling PayPal checkout.
+
+Do not commit database credentials or other secrets to the repository.
 
 ## Demo Accounts
 
