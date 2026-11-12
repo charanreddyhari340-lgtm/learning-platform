@@ -4,7 +4,7 @@ let mongoServer = null;
 
 const connectDB = async () => {
   try {
-    let mongoUri = process.env.MONGODB_URI;
+    const mongoUri = process.env.MONGODB_URI;
 
     if (mongoUri && mongoUri.trim() !== '') {
       // Production: use the provided MongoDB URI (Atlas, etc.)
@@ -12,15 +12,13 @@ const connectDB = async () => {
       const conn = await mongoose.connect(mongoUri);
       console.log(`MongoDB Connected (URI): ${conn.connection.host}`);
     } else {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('MONGODB_URI must be configured in production.');
+      }
+
       // Development fallback: use in-memory MongoDB
       console.log('No MONGODB_URI provided. Starting in-memory MongoDB...');
-      let MongoMemoryServer;
-      try {
-        ({ MongoMemoryServer } = require('mongodb-memory-server'));
-      } catch (e) {
-        console.error('mongodb-memory-server not available. Please set MONGODB_URI env variable.');
-        process.exit(1);
-      }
+      const { MongoMemoryServer } = require('mongodb-memory-server');
       mongoServer = await MongoMemoryServer.create();
       const inMemoryUri = mongoServer.getUri();
       const conn = await mongoose.connect(inMemoryUri);
@@ -28,7 +26,7 @@ const connectDB = async () => {
     }
   } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+    throw error;
   }
 };
 

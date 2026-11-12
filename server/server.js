@@ -16,6 +16,26 @@ dotenv.config();
 
 const app = express();
 
+let dbInitialization;
+
+const initDB = () => {
+  if (!dbInitialization) {
+    dbInitialization = (async () => {
+      await connectDB();
+      const courseCount = await Course.countDocuments();
+      if (courseCount === 0) {
+        console.log('Database empty — auto-seeding...');
+        await seedData();
+      }
+    })().catch((error) => {
+      dbInitialization = null;
+      throw error;
+    });
+  }
+
+  return dbInitialization;
+};
+
 // CORS - allow frontend origin
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',')
@@ -34,6 +54,10 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use('/api', (req, res, next) => {
+  initDB().then(() => next()).catch(next);
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -84,31 +108,24 @@ if (fs.existsSync(clientDistPath)) {
 app.use(notFound);
 app.use(errorHandler);
 
-// ─── DB Init + Seed (runs once, cached after first cold start) ──────────────
-let dbInitialized = false;
-
-const initDB = async () => {
-  if (dbInitialized) return;
-  dbInitialized = true;
-  await connectDB();
-  const courseCount = await Course.countDocuments();
-  if (courseCount === 0) {
-    console.log('Database empty — auto-seeding...');
-    await seedData();
-  }
-};
-
 // ─── Local Dev: start HTTP server ───────────────────────────────────────────
-if (process.env.NODE_ENV !== 'production' || require.main === module) {
+if (require.main === module) {
   const DEFAULT_PORT = Number(process.env.PORT || 5000);
 
   const listenOnPort = (port) => {
     const server = app.listen(port, async () => {
-      await initDB();
-      console.log(`====================================================`);
-      console.log(` SkillForge API running on port ${port}`);
-      console.log(` http://localhost:${port}/api/health`);
-      console.log(`====================================================`);
+      try {
+        await initDB();
+        console.log(`====================================================`);
+        console.log(` SkillForge API running on port ${port}`);
+        console.log(` http://localhost:${port}/api/health`);
+        console.log(`====================================================`);
+      } catch (error) {
+        console.error('Database initialization failed:', error.message);
+        server.close(() => {
+          process.exitCode = 1;
+        });
+      }
     });
 
     server.on('error', (error) => {
@@ -125,13 +142,4 @@ if (process.env.NODE_ENV !== 'production' || require.main === module) {
   listenOnPort(DEFAULT_PORT);
 }
 
-// ─── Vercel Serverless Export ────────────────────────────────────────────────
-// Vercel calls this module as a function, not via listen().
-// We init the DB lazily on first request.
-const serverlessHandler = async (req, res) => {
-  await initDB();
-  app(req, res);
-};
-
 module.exports = app;
-module.exports.default = serverlessHandler;
