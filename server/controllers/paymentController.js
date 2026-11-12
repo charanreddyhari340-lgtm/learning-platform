@@ -1,5 +1,6 @@
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
+const { isSamplePaymentEnabled } = require('../config/featureFlags');
 
 const getPayPalBaseUrl = () =>
   process.env.PAYPAL_MODE === 'live'
@@ -141,7 +142,7 @@ const capturePayPalOrder = async (req, res, next) => {
 
 const createSamplePayment = async (req, res, next) => {
   try {
-    if (process.env.ALLOW_SAMPLE_PAYMENTS !== 'true') {
+    if (!isSamplePaymentEnabled()) {
       return res.status(404).json({ success: false, message: 'Sample payments are disabled' });
     }
 

@@ -1,6 +1,9 @@
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
-const { isTestCourseAccessEnabled } = require('../config/featureFlags');
+const {
+  isSamplePaymentEnabled,
+  isTestCourseAccessEnabled,
+} = require('../config/featureFlags');
 
 // @desc    Get all published courses with query filtering, searching and sorting
 // @route   GET /api/courses
@@ -253,6 +256,7 @@ const getCourseDetails = async (req, res, next) => {
         enrollmentId: enrollmentData ? enrollmentData._id : null,
       },
       testAccessEnabled: isTestCourseAccessEnabled(),
+      samplePaymentEnabled: isSamplePaymentEnabled(),
     });
   } catch (error) {
     next(error);

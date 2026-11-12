@@ -66,11 +66,19 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Static uploads (local dev only — Vercel is stateless)
+// Uploaded documents are forced to download; other uploads remain inline for media playback.
 const uploadsPath = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
 }
+app.use(
+  '/uploads/documents',
+  express.static(path.join(uploadsPath, 'documents'), {
+    setHeaders: (res, filePath) => {
+      res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
+    },
+  }),
+);
 app.use('/uploads', express.static(uploadsPath));
 
 // API Routes

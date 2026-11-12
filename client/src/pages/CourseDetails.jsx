@@ -36,6 +36,7 @@ export const CourseDetails = () => {
   const [stats, setStats] = useState({});
   const [userEnrollment, setUserEnrollment] = useState({ isEnrolled: false });
   const [testAccessEnabled, setTestAccessEnabled] = useState(false);
+  const [samplePaymentEnabled, setSamplePaymentEnabled] = useState(false);
   const [previewVideo, setPreviewVideo] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
   const [reviews, setReviews] = useState([]);
@@ -61,6 +62,7 @@ export const CourseDetails = () => {
           setStats(courseRes.stats || {});
           setUserEnrollment(courseRes.userEnrollment || { isEnrolled: false });
           setTestAccessEnabled(courseRes.testAccessEnabled === true);
+          setSamplePaymentEnabled(courseRes.samplePaymentEnabled === true);
 
           const firstFreeVideoPreview = (courseRes.course.modules || [])
             .flatMap((module) => module.lessons || [])
@@ -181,19 +183,37 @@ export const CourseDetails = () => {
       (isAuthenticated && testAccessEnabled) ||
       course.isFree ||
       Number(course.price) === 0);
-  const visibleResources = course
+  const allResources = course
     ? [
-        ...(canAccessAllMaterials ? course.resources || [] : []),
+        ...(course.resources || []).map((resource) => ({
+          ...resource,
+          isFreePreview: false,
+        })),
         ...(course.modules || []).flatMap((module) =>
           (module.lessons || []).flatMap((lesson) =>
-            canAccessAllMaterials || lesson.isFreePreview ? lesson.resources || [] : [],
+            (lesson.resources || []).map((resource) => ({
+              ...resource,
+              isFreePreview: lesson.isFreePreview === true,
+            })),
           ),
         ),
-      ].filter(
-        (resource, index, resources) =>
-          resource?.url && resources.findIndex((item) => item?.url === resource.url) === index,
-      )
+      ]
+        .filter((resource) => resource?.url)
+        .reduce((resources, resource) => {
+          const existingResource = resources.find((item) => item.url === resource.url);
+          if (existingResource) {
+            existingResource.isFreePreview =
+              existingResource.isFreePreview || resource.isFreePreview;
+          } else {
+            resources.push(resource);
+          }
+          return resources;
+        }, [])
     : [];
+  const visibleResources = allResources.filter(
+    (resource) => canAccessAllMaterials || resource.isFreePreview,
+  );
+  const lockedResourceCount = allResources.length - visibleResources.length;
 
   if (isLoading) {
     return (
@@ -425,9 +445,16 @@ export const CourseDetails = () => {
                                     Free Preview
                                   </span>
                                 )}
-                                {l.resources && l.resources.length > 0 && (
+                                {l.resources && l.resources.length > 0 ? (
                                   <span className="badge badge-indigo" style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
                                     <Paperclip size={10} /> {l.resources.length} {l.resources.length === 1 ? 'doc' : 'docs'}
+                                  </span>
+                                ) : (
+                                  <span
+                                    title="No downloadable materials have been added to this lesson."
+                                    style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
+                                  >
+                                    <Download size={10} /> No files
                                   </span>
                                 )}
                               </div>
@@ -455,37 +482,50 @@ export const CourseDetails = () => {
               </div>
             </div>
 
-            {visibleResources.length > 0 && (
+            {course && (
               <section className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2.5rem' }}>
                 <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '1rem' }}>
                   <Download size={19} color="var(--brand-primary)" />
                   Lecture Resources & Downloadable Materials
                 </h3>
-                <div style={{ display: 'grid', gap: '0.6rem' }}>
-                  {visibleResources.map((resource, index) => (
-                    <a
-                      key={resource._id || `${resource.url}-${index}`}
-                      href={resource.url}
-                      download={resource.filename || true}
-                      target={/^https?:\/\//i.test(resource.url) ? '_blank' : undefined}
-                      rel={/^https?:\/\//i.test(resource.url) ? 'noopener noreferrer' : undefined}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '0.75rem',
-                        padding: '0.75rem 1rem',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: 'var(--radius-sm)',
-                        color: 'var(--text-primary)',
-                        textDecoration: 'none',
-                      }}
-                    >
-                      <span>{resource.title || 'Course resource'}</span>
-                      <Download size={16} color="var(--brand-primary)" />
-                    </a>
-                  ))}
-                </div>
+                {visibleResources.length > 0 ? (
+                  <div style={{ display: 'grid', gap: '0.6rem' }}>
+                    {visibleResources.map((resource, index) => (
+                      <a
+                        key={resource._id || `${resource.url}-${index}`}
+                        href={resource.url}
+                        download={resource.filename || true}
+                        target={/^https?:\/\//i.test(resource.url) ? '_blank' : undefined}
+                        rel={/^https?:\/\//i.test(resource.url) ? 'noopener noreferrer' : undefined}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '0.75rem',
+                          padding: '0.75rem 1rem',
+                          border: '1px solid var(--border-subtle)',
+                          borderRadius: 'var(--radius-sm)',
+                          color: 'var(--text-primary)',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        <span>{resource.title || 'Course resource'}</span>
+                        <Download size={16} color="var(--brand-primary)" />
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
+                    {lockedResourceCount > 0
+                      ? 'Sign in and enroll to download the course materials.'
+                      : 'No downloadable materials have been added to this course yet.'}
+                  </p>
+                )}
+                {visibleResources.length > 0 && lockedResourceCount > 0 && (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '0.75rem 0 0' }}>
+                    Enroll to access the remaining course materials.
+                  </p>
+                )}
               </section>
             )}
 
@@ -647,6 +687,7 @@ export const CourseDetails = () => {
                   <div style={{ marginBottom: '1.2rem' }}>
                     <PayPalCheckout
                       courseId={course._id}
+                      samplePaymentEnabled={samplePaymentEnabled}
                       onSuccess={handlePaymentSuccess}
                       onError={(error) => addToast(error.message || 'Payment failed', 'error')}
                     />

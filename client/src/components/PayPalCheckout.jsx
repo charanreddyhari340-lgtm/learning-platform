@@ -5,28 +5,37 @@ import { api } from '../services/api';
 const clientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 const currency = import.meta.env.VITE_PAYPAL_CURRENCY || 'INR';
 
-export const PayPalCheckout = ({ courseId, onSuccess, onError }) => {
+export const PayPalCheckout = ({
+  courseId,
+  onSuccess,
+  onError,
+  samplePaymentEnabled = false,
+}) => {
   if (!clientId) {
     return (
       <div>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.7rem' }}>
-          PayPal is not configured. Use the sample payment for local testing.
+          {samplePaymentEnabled
+            ? 'PayPal is not configured. Use the sample payment for staging tests.'
+            : 'PayPal is not configured and sample payments are disabled.'}
         </p>
-        <button
-          type="button"
-          className="btn btn-primary"
-          style={{ width: '100%' }}
-          onClick={async () => {
-            try {
-              const response = await api.createSamplePayment(courseId);
-              onSuccess(response);
-            } catch (error) {
-              onError(error);
-            }
-          }}
-        >
-          Complete Sample Payment
-        </button>
+        {samplePaymentEnabled && (
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ width: '100%' }}
+            onClick={async () => {
+              try {
+                const response = await api.createSamplePayment(courseId);
+                onSuccess(response);
+              } catch (error) {
+                onError(error);
+              }
+            }}
+          >
+            Complete Sample Payment
+          </button>
+        )}
       </div>
     );
   }

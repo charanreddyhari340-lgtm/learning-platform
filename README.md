@@ -126,8 +126,8 @@ npm start        # serves the API and the built client on http://localhost:5000
 | `CORS_ORIGIN` | Comma-separated allowed origins |
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | PayPal API credentials |
 | `PAYPAL_MODE`, `PAYPAL_CURRENCY` | `sandbox` or `live`; currency (default `INR`) |
-| `ALLOW_SAMPLE_PAYMENTS` | `true` enables test enrolment for paid courses |
-| `ALLOW_TEST_COURSE_ACCESS` | `true` enables authenticated test access to paid course lessons; leave unset or `false` outside a staging environment |
+| `ALLOW_SAMPLE_PAYMENTS` | `true` enables simulated paid-course enrollment; staging only |
+| `ALLOW_TEST_COURSE_ACCESS` | `true` enables signed-in test access to paid lessons and sample-payment enrollment; keep off in production |
 
 `client/.env`
 
@@ -148,12 +148,17 @@ to `https://learning-platform-j8aa.onrender.com`.
 2. Set `MONGODB_URI` and `JWT_SECRET` in the Render service's Environment
    settings. Add the PayPal server credentials there if enabling payments.
    For staging tests only, set `ALLOW_TEST_COURSE_ACCESS=true` on Render to
-   unlock paid lessons for signed-in users; remove it before public production use.
+   unlock paid lessons and enable sample-payment enrollment for signed-in users;
+   remove it before public production use.
 3. Import the same GitHub repository into Vercel using the repository root as
    the project root. Vercel uses `vercel.json` to build the client and route API
    and upload requests through Render.
 4. Add `VITE_PAYPAL_CLIENT_ID` and `VITE_PAYPAL_CURRENCY` in Vercel before
    building if enabling PayPal checkout.
+
+Upload documents through the deployed instructor dashboard so they reach the
+Render API. Render's local filesystem may be cleared on restart or redeploy;
+use a persistent disk or object storage if uploaded materials must survive those events.
 
 Do not commit database credentials or other secrets to the repository.
 
@@ -209,7 +214,7 @@ Base path: `/api`. Protected routes need `Authorization: Bearer <token>`.
 | POST | `/enrollments/enroll/:courseId` | Logged in |
 | POST | `/enrollments/paypal/order/:courseId` | Logged in |
 | POST | `/enrollments/paypal/capture` | Logged in |
-| POST | `/enrollments/sample-payment/:courseId` | Logged in (needs `ALLOW_SAMPLE_PAYMENTS=true`) |
+| POST | `/enrollments/sample-payment/:courseId` | Logged in (needs `ALLOW_SAMPLE_PAYMENTS=true` or staging test access) |
 | GET | `/enrollments/my-learning` | Logged in |
 | POST | `/enrollments/:courseId/progress` | Logged in |
 | POST | `/enrollments/:courseId/quiz` | Logged in |

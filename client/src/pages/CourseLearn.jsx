@@ -428,11 +428,11 @@ export const CourseLearn = () => {
           )}
 
           {/* Lesson Downloadable Resources */}
-          {currentLesson.resources && currentLesson.resources.length > 0 && (
-            <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '2rem' }}>
-              <h3 style={{ fontSize: '1.05rem', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FileText size={18} color="var(--brand-primary)" /> Lecture Resources & Downloadable Materials
-              </h3>
+          <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '2rem' }}>
+            <h3 style={{ fontSize: '1.05rem', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <FileText size={18} color="var(--brand-primary)" /> Lecture Resources & Downloadable Materials
+            </h3>
+            {currentLesson.resources && currentLesson.resources.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 {currentLesson.resources.map((res, rIdx) => (
                   <a
@@ -467,8 +467,12 @@ export const CourseLearn = () => {
                   </a>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
+                No downloadable materials have been added to this lecture yet.
+              </p>
+            )}
+          </div>
 
           {/* Bottom Next / Prev Navigation */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem' }}>
@@ -516,22 +520,22 @@ export const CourseLearn = () => {
             </div>
 
             {/* Course-Wide Materials / Documents */}
-            {course.resources && course.resources.length > 0 && (
-              <div
-                style={{
-                  margin: '0.8rem 0.8rem 0',
-                  padding: '0.8rem',
-                  background: 'rgba(168, 85, 247, 0.08)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid rgba(168, 85, 247, 0.25)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <FolderDown size={15} color="#a855f7" />
-                  <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                    Course Documents & Resources ({course.resources.length})
-                  </span>
-                </div>
+            <div
+              style={{
+                margin: '0.8rem 0.8rem 0',
+                padding: '0.8rem',
+                background: 'rgba(168, 85, 247, 0.08)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid rgba(168, 85, 247, 0.25)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <FolderDown size={15} color="#a855f7" />
+                <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                  Course Documents & Resources ({course.resources?.length || 0})
+                </span>
+              </div>
+              {course.resources?.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                   {course.resources.map((res, rIdx) => (
                     <a
@@ -559,8 +563,12 @@ export const CourseLearn = () => {
                     </a>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', margin: 0 }}>
+                  No course-wide files have been uploaded.
+                </p>
+              )}
+            </div>
 
             {/* Modules Accordion */}
             <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
@@ -638,9 +646,13 @@ export const CourseLearn = () => {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                               <span>{lesson.type === 'quiz' ? 'Quiz Assessment' : lesson.type === 'reading' ? 'Reading' : 'Video'} • {lesson.duration || '10:00'}</span>
-                              {lesson.resources && lesson.resources.length > 0 && (
+                              {lesson.resources && lesson.resources.length > 0 ? (
                                 <span title={`${lesson.resources.length} document attachment(s)`} style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', color: 'var(--brand-primary)' }}>
                                   <Paperclip size={12} /> {lesson.resources.length}
+                                </span>
+                              ) : (
+                                <span title="No downloadable materials have been added to this lesson." style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', color: 'var(--text-muted)' }}>
+                                  <Download size={12} /> 0
                                 </span>
                               )}
                             </div>
