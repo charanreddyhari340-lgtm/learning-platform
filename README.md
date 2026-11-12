@@ -1,143 +1,242 @@
-SkillForge — Modern Full-Stack MERN Online Learning Platform
+# SkillForge – Online Learning Platform
 
-SkillForge is an interactive, production-grade **Learning Management System (LMS)** built with modern web technologies: **React**, **Express**, **Node.js**, and **MongoDB**. Designed with contemporary aesthetics (glassmorphism, dark/light themes, sleek animations), it delivers an engaging classroom experience for learners, instructors, and administrators.
+A full-stack **Learning Management System (LMS)** built with the **MERN stack** (MongoDB, Express.js, React, Node.js). Learners search courses, enrol (free or paid with PayPal), watch lectures, take graded quizzes, keep timestamped notes and earn certificates that anyone can verify. Instructors build and manage courses from a studio dashboard.
 
----
+**Team 15 – Digita-minds** | Kalasalingam Academy of Research and Education
 
- Key Features
+| | |
+|---|---|
+| **Live demo** | [Paste live link here] |
+| **Repository** | https://github.com/charanreddyhari340-lgtm/learning-platform |
+| **Documentation** | [`docs/SkillForge_Project_Documentation.pdf`](docs/SkillForge_Project_Documentation.pdf) |
+| **Presentation** | [`docs/`](docs/) |
 
-For Learners & Students
- **Smart Video Classroom**: Responsive video player with speed adjustments (0.75x–2x), continuous autoplay, and lecture progress tracking.
- **Interactive Graded Quizzes**: In-module assessments with instant scoring, passing threshold evaluations, and detailed answer explanations.
- **Timestamped Lecture Notes**: Write personal notes synchronized to the video playback time; click any note timestamp to jump to that moment in the video.
- **Verifiable Digital Certificates**: Automatically earned upon 100% course completion with unique credential IDs (e.g. `CERT-SKILLFORGE-2026-UX99`), printable canvas, PDF export, and shareable verification links.
- **Public Credential Ledger**: Dedicated `/verify` page where anyone can look up and authenticate completion certificates.
- **Course Discovery & Filtering**: Search by keyword, multi-category chips, difficulty level, price type (free/paid), and sorting options.
- **Student Dashboard & Profile**: Track active vs. completed courses, certificate collections, profile bios, and credentials.
+## Team
 
-👩‍🏫 For Instructors & Creators
- Creator Studio Analytics**: Monitor total enrolled students, estimated gross revenue, course counts, and average star ratings.
- Visual Course Editor**: Dynamic syllabus builder with multi-module structuring, video lectures, and quiz assessment question designer.
- Course Catalog Management**: Edit, publish, review, or delete courses.
+| Name | Registration No. | GitHub |
+|---|---|---|
+| K. Dhanush | [Reg. No.] | [GitHub link] |
+| K. Navaneeth | 99230040029 | [GitHub link] |
+| C. Hari Charan Reddy | 99230041153 | https://github.com/charanreddyhari340-lgtm |
+| Allatipalli Vinod Babu | 99230040472 | [GitHub link] |
+| A. Venkata Manikanta | 99230041151 | [GitHub link] |
+| S. Akash | 99230040753 | [GitHub link] |
 
-System & Developer Experience
- Zero-Config Standalone Execution**: Auto-detects environment; seamlessly starts an in-memory MongoDB server if no external database URI is configured.
- Auto-Seeding Engine**: Initializes comprehensive demo courses, interactive quizzes, student enrollments, and reviews on first boot.
- 1-Click Demo Login**: Quick-access buttons for Student, Instructor, and Admin roles.
- JWT & Role-Based Access Control**: Secure token authentication with student, instructor, and admin route protection.
+Trainer / Guide: **Ajusha**
 
+## Features
 
-Tech Stack
+**Learners**
+- Course discovery with keyword search, category, level, price and rating filters, sorting and pagination
+- Free enrolment and paid enrolment through PayPal (payment is verified on the server)
+- Video classroom with playback speed control, lesson completion and progress tracking
+- Graded quizzes with instant score and explanations
+- Personal notes saved at the video timestamp
+- Certificate issued automatically at 100% completion, with a public verification page (`/verify`)
+- Course ratings and reviews
+- Dashboard and profile
+
+**Instructors / Admin**
+- Studio dashboard: courses, students, estimated revenue, average rating, recent enrolments
+- Course editor with modules, lessons, quizzes and resources
+- File upload for documents, videos and images
+- Create, edit, publish and delete courses
+
+**Platform**
+- JWT authentication, bcrypt password hashing and role-based access (student, instructor, admin)
+- Auto-seeding of demo data, and an in-memory MongoDB fallback when no database URI is set
+- Dark and light themes
+
+## Tech Stack
 
 | Layer | Technologies |
-| :--- | :--- |
-| **Frontend** | React 18, Vite 5, React Router 6, Lucide React, Canvas Confetti |
-| **Styling** | Vanilla CSS Design System with CSS variables, Glassmorphism & Micro-animations |
-| **Backend** | Node.js, Express 4, Morgan logger, CORS, Dotenv |
-| **Database** | MongoDB with Mongoose 8 & MongoDB Memory Server (zero-config fallback) |
-| **Authentication** | JWT (JSON Web Tokens) & BcryptJS password hashing |
+|---|---|
+| Frontend | React 18, Vite 5, React Router 6, Lucide React, Canvas Confetti, custom CSS |
+| Backend | Node.js, Express 4, Morgan, CORS, Dotenv, Multer |
+| Database | MongoDB with Mongoose 8 (Atlas or in-memory) |
+| Auth | JWT, bcryptjs |
+| Payments | PayPal REST API, `@paypal/react-paypal-js` |
+| Deployment | Vercel, MongoDB Atlas |
 
----
+## Project Structure
 
-Project Structure
-
-text
-Online-Learning-Platform/
-├── client/                      # Frontend Single Page App
-│   ├── src/
-│   │   ├── components/          # Reusable UI (Navbar, Footer, VideoPlayer, QuizModal, etc.)
-│   │   ├── context/             # React Context (Auth, Theme, Toast)
-│   │   ├── pages/               # Views (Home, Courses, CourseDetails, CourseLearn, etc.)
-│   │   ├── services/            # API Client wrapper
-│   │   └── styles/              # Global CSS tokens and component stylesheets
-│   ├── index.html               # Main HTML entry with typography
-│   └── vite.config.js           # Vite configuration & proxy settings
-│
-├── server/                      # Backend API Server
-│   ├── config/                  # Database connectivity & memory server
-│   ├── controllers/             # Auth, Course, Enrollment, Instructor, Review handlers
-│   ├── middleware/              # Auth protect, OptionalProtect, Role auth, Error handling
-│   ├── models/                  # Mongoose schemas (User, Course, Enrollment, Review)
-│   ├── routes/                  # Express RESTful endpoints
-│   ├── seeders/                 # Realistic mock data and database seeder
-│   └── server.js                # Server entry point with static client serving
-│
-├── package.json                 # Monorepo root scripts (dev, build, start)
-└── README.md                    # Platform documentation
-
- Quick Start Guide
- 
-Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- npm or yarn
-
-1. Installation
-Install dependencies for both server and client:
-```bash
-npm run install-all
+```text
+learning-platform/
+├── client/                  # React single-page app
+│   └── src/
+│       ├── components/      # Navbar, Footer, VideoPlayer, QuizModal, PayPalCheckout ...
+│       ├── context/         # Auth, Theme, Toast
+│       ├── pages/           # Home, Courses, CourseDetails, CourseLearn, Dashboard ...
+│       ├── services/        # API client
+│       └── styles/
+├── server/                  # Express API
+│   ├── config/              # Database connection
+│   ├── controllers/         # auth, course, enrollment, payment, review, instructor
+│   ├── middleware/          # protect, authorize, error handling
+│   ├── models/              # User, Course, Enrollment, Review
+│   ├── routes/
+│   ├── seeders/             # Demo data
+│   └── server.js
+├── docs/                    # Documentation and presentation
+├── screenshots/             # Application screenshots
+├── package.json             # Root scripts
+└── vercel.json
 ```
 
-2. Running in Development Mode
-Start both backend API (`port 5000`) and Vite client (`port 3000`) concurrently:
+## Getting Started
+
+**Prerequisites:** Node.js 18 or higher. A MongoDB Atlas connection string is optional.
+
 ```bash
+# 1. Clone
+git clone https://github.com/charanreddyhari340-lgtm/learning-platform.git
+cd learning-platform
+
+# 2. Install server and client dependencies
+npm run install-all
+
+# 3. (Optional) create server/.env from server/.env.example
+
+# 4. Run the API (port 5000) and the client (port 3000)
 npm run dev
 ```
-Open your browser at `http://localhost:3000/`.
 
-3. Production Build & Serving
-Build the optimized frontend distribution and start the server:
+Open **http://localhost:3000**.
+
+If `MONGODB_URI` is not set, the server starts an in-memory MongoDB and seeds demo data on first start.
+
+**Production build**
+
 ```bash
 npm run build
-npm start
+npm start        # serves the API and the built client on http://localhost:5000
 ```
-The full application will be accessible at `http://localhost:5000/`.
 
+> `npm run seed` clears the users, courses, enrolments and reviews collections before inserting demo data. Do not run it on a database with real data.
 
+## Environment Variables
 
- Demo Credentials
+`server/.env`
 
-| Role | Email | Password | Quick Action |
-| :--- | :--- | :--- | :--- |
-| **Student** | `student@skillforge.com` | `password123` | Click **Student** on the `/login` page |
-| **Instructor** | `instructor@skillforge.com` | `password123` | Click **Instructor** on the `/login` page |
-| **Admin** | `admin@skillforge.com` | `password123` | Click **Admin** on the `/login` page |
-| **Certificate Verification** | N/A | N/A | Enter `CERT-SKILLFORGE-2026-UX99` on `/verify` |
+| Variable | Purpose |
+|---|---|
+| `MONGODB_URI` | MongoDB connection string (empty = in-memory database) |
+| `JWT_SECRET` | Secret used to sign tokens |
+| `PORT` | API port, default 5000 |
+| `CORS_ORIGIN` | Comma-separated allowed origins |
+| `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | PayPal API credentials |
+| `PAYPAL_MODE`, `PAYPAL_CURRENCY` | `sandbox` or `live`; currency (default `INR`) |
+| `ALLOW_SAMPLE_PAYMENTS` | `true` enables test enrolment for paid courses |
 
+`client/.env`
 
+| Variable | Purpose |
+|---|---|
+| `VITE_PAYPAL_CLIENT_ID` | PayPal client ID for the checkout buttons |
+| `VITE_PAYPAL_CURRENCY` | Currency, default `INR` |
 
-API Endpoint Overview
+## Demo Accounts
 
-Authentication (`/api/auth`)
-- `POST /api/auth/register` — Register new user
-- `POST /api/auth/login` — Authenticate user and receive JWT
-- `GET /api/auth/me` — Get current logged-in user profile
-- `PUT /api/auth/profile` — Update name, avatar, bio, headline, skills
-- `PUT /api/auth/change-password` — Update user password
+| Role | Email | Password |
+|---|---|---|
+| Student | `student@skillforge.com` | `password123` |
+| Instructor | `instructor@skillforge.com` | `password123` |
+| Admin | `admin@skillforge.com` | `password123` |
 
- Courses (`/api/courses`)
-- `GET /api/courses` — Search, filter, and sort published courses
-- `GET /api/courses/featured` — Get featured and popular courses
-- `GET /api/courses/categories` — Get category list and course counts
-- `GET /api/courses/:idOrSlug` — Get single course details (with optional user enrollment status)
-- `GET /api/courses/:id/learn` — Get full curriculum and progress (for enrolled students)
+Sample certificate ID for the `/verify` page: `CERT-SKILLFORGE-2026-UX99`
 
-Enrollments & Learning (`/api/enrollments`)
-- `POST /api/enrollments/enroll/:courseId` — Enroll in a course
-- `GET /api/enrollments/my-learning` — Get all enrolled courses for current user
-- `POST /api/enrollments/:courseId/progress` — Toggle lesson completion status
-- `POST /api/enrollments/:courseId/quiz` — Submit quiz answers for instant grading
-- `POST /api/enrollments/:courseId/notes` — Save timestamped lecture note
-- `DELETE /api/enrollments/:courseId/notes/:noteId` — Delete lecture note
-- `GET /api/enrollments/certificate/:certificateId` — Public verification lookup for certificate
+## Database Design
 
-Instructor Studio (`/api/instructor`)
-- `GET /api/instructor/stats` — Revenue, students, course counts, average rating
-- `GET /api/instructor/courses` — Get all courses created by instructor
-- `POST /api/instructor/courses` — Create and publish a new course
-- `PUT /api/instructor/courses/:id` — Update course content & syllabus
-- `DELETE /api/instructor/courses/:id` — Delete course and associated records
+| Collection | Key fields |
+|---|---|
+| **User** | name, email (unique), password (hashed), role, avatar, headline, bio, skills, socialLinks |
+| **Course** | title, slug, subtitle, description, category, level, price, instructor → User, modules[ lessons[ video, content, resources, quiz ] ], tags, rating, reviewsCount, studentsCount, isPublished, isFeatured |
+| **Enrollment** | student → User, course → Course, completedLessons, progress, quizScores, notes, isCompleted, certificateId (unique), payment details |
+| **Review** | course → Course, user → User, rating (1–5), comment |
 
----
+Constraints: one enrolment per student per course, one review per user per course, unique certificate IDs. The full design is in the documentation PDF.
 
-## 📄 License
-This project is licensed under the MIT License.
+## API Documentation
+
+Base path: `/api`. Protected routes need `Authorization: Bearer <token>`.
+
+**Auth**
+
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/auth/register` | Public |
+| POST | `/auth/login` | Public |
+| GET | `/auth/me` | Logged in |
+| PUT | `/auth/profile` | Logged in |
+| PUT | `/auth/change-password` | Logged in |
+
+**Courses**
+
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/courses` (search, category, level, priceType, minRating, sort, page, limit) | Public |
+| GET | `/courses/featured` | Public |
+| GET | `/courses/categories` | Public |
+| GET | `/courses/:idOrSlug` | Public |
+| GET | `/courses/:id/learn` | Enrolled / instructor / admin |
+
+**Enrolments, learning and payment**
+
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/enrollments/enroll/:courseId` | Logged in |
+| POST | `/enrollments/paypal/order/:courseId` | Logged in |
+| POST | `/enrollments/paypal/capture` | Logged in |
+| POST | `/enrollments/sample-payment/:courseId` | Logged in (needs `ALLOW_SAMPLE_PAYMENTS=true`) |
+| GET | `/enrollments/my-learning` | Logged in |
+| POST | `/enrollments/:courseId/progress` | Logged in |
+| POST | `/enrollments/:courseId/quiz` | Logged in |
+| POST | `/enrollments/:courseId/notes` | Logged in |
+| DELETE | `/enrollments/:courseId/notes/:noteId` | Logged in |
+| GET | `/enrollments/certificate/:certificateId` | Public |
+
+**Reviews**
+
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/reviews/course/:courseId` | Public |
+| POST | `/reviews/course/:courseId` | Logged in |
+| DELETE | `/reviews/:id` | Author or admin |
+
+**Instructor studio and uploads** (instructor or admin)
+
+| Method | Endpoint |
+|---|---|
+| GET | `/instructor/stats` |
+| GET, POST | `/instructor/courses` |
+| GET, PUT, DELETE | `/instructor/courses/:id` |
+| POST | `/upload/document`, `/upload/video`, `/upload/image` |
+
+Health check: `GET /api/health`
+
+## Screenshots
+
+Add the images to the `screenshots/` folder, then update the file names below.
+
+| Home | Courses |
+|---|---|
+| ![Home](screenshots/home.png) | ![Courses](screenshots/courses.png) |
+
+| Classroom | Quiz |
+|---|---|
+| ![Classroom](screenshots/classroom.png) | ![Quiz](screenshots/quiz.png) |
+
+| Certificate | Instructor Studio |
+|---|---|
+| ![Certificate](screenshots/certificate.png) | ![Instructor](screenshots/instructor.png) |
+
+## Security
+
+- Passwords hashed with bcryptjs; passwords excluded from queries by default
+- JWT verified on every protected request; role-based route protection
+- Paid enrolment is created only after PayPal capture, with owner, currency and amount verified against the course price in the database
+- Secrets are kept in environment variables; `.env` is git-ignored
+
+## License
+
+MIT
