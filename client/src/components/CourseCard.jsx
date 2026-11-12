@@ -50,11 +50,11 @@ export const CourseCard = ({ course }) => {
               course.instructor?.avatar ||
               'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'
             }
-            alt={course.instructor?.name || 'Instructor'}
+            alt={course.instructor?.name || 'UAV X'}
             className="instructor-avatar-xs"
           />
           <span className="instructor-name-xs">
-            {course.instructor?.name || 'SkillForge Lead'}
+            {course.instructor?.name || 'UAV X'}
           </span>
         </div>
 

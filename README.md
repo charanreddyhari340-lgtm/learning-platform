@@ -127,6 +127,7 @@ npm start        # serves the API and the built client on http://localhost:5000
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | PayPal API credentials |
 | `PAYPAL_MODE`, `PAYPAL_CURRENCY` | `sandbox` or `live`; currency (default `INR`) |
 | `ALLOW_SAMPLE_PAYMENTS` | `true` enables test enrolment for paid courses |
+| `ALLOW_TEST_COURSE_ACCESS` | `true` enables authenticated test access to paid course lessons; leave unset or `false` outside a staging environment |
 
 `client/.env`
 
@@ -146,6 +147,8 @@ to `https://learning-platform-j8aa.onrender.com`.
    as the build command and `npm start` as the start command.
 2. Set `MONGODB_URI` and `JWT_SECRET` in the Render service's Environment
    settings. Add the PayPal server credentials there if enabling payments.
+   For staging tests only, set `ALLOW_TEST_COURSE_ACCESS=true` on Render to
+   unlock paid lessons for signed-in users; remove it before public production use.
 3. Import the same GitHub repository into Vercel using the repository root as
    the project root. Vercel uses `vercel.json` to build the client and route API
    and upload requests through Render.

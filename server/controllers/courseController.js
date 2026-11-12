@@ -1,5 +1,6 @@
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
+const { isTestCourseAccessEnabled } = require('../config/featureFlags');
 
 // @desc    Get all published courses with query filtering, searching and sorting
 // @route   GET /api/courses
@@ -251,6 +252,7 @@ const getCourseDetails = async (req, res, next) => {
         progress: userProgress,
         enrollmentId: enrollmentData ? enrollmentData._id : null,
       },
+      testAccessEnabled: isTestCourseAccessEnabled(),
     });
   } catch (error) {
     next(error);
@@ -287,7 +289,12 @@ const getCourseCurriculum = async (req, res, next) => {
       course: course._id,
     });
 
-    if (!enrollment && req.user.role !== 'admin' && String(course.instructor._id) !== String(req.user._id)) {
+    if (
+      !enrollment &&
+      req.user.role !== 'admin' &&
+      String(course.instructor?._id) !== String(req.user._id) &&
+      !isTestCourseAccessEnabled()
+    ) {
       return res.status(403).json({
         success: false,
         message: 'You are not enrolled in this course. Please enroll to access the lessons.',

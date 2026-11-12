@@ -178,7 +178,7 @@ export const CourseLearn = () => {
           studentName: user?.name || 'Alex Morgan',
           courseTitle: course?.title,
           courseCategory: course?.category,
-          instructorName: course?.instructor?.name || 'Dr. Sarah Jenkins',
+          instructorName: course?.instructor?.name || 'UAV X',
           issueDate: enrollment.completedAt || new Date(),
         });
         setCertificateModalOpen(true);
@@ -438,8 +438,8 @@ export const CourseLearn = () => {
                   <a
                     key={rIdx}
                     href={res.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    download={res.filename || true}
+                    aria-label={`Download ${res.title || 'lecture resource'}`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -537,8 +537,8 @@ export const CourseLearn = () => {
                     <a
                       key={rIdx}
                       href={res.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      download={res.filename || true}
+                      aria-label={`Download ${res.title || 'course resource'}`}
                       style={{
                         display: 'flex',
                         alignItems: 'center',

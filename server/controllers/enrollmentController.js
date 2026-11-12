@@ -1,6 +1,7 @@
 const Enrollment = require('../models/Enrollment');
 const Course = require('../models/Course');
 const crypto = require('crypto');
+const { isTestCourseAccessEnabled } = require('../config/featureFlags');
 
 // @desc    Enroll student into a course
 // @route   POST /api/enrollments/enroll/:courseId
@@ -30,6 +31,13 @@ const enrollInCourse = async (req, res, next) => {
         success: false,
         message: 'You are already enrolled in this course',
         enrollment,
+      });
+    }
+
+    if (!course.isFree && Number(course.price) > 0 && !isTestCourseAccessEnabled()) {
+      return res.status(402).json({
+        success: false,
+        message: 'Payment is required before enrolling in this course.',
       });
     }
 
@@ -131,7 +139,13 @@ const updateLessonProgress = async (req, res, next) => {
     });
 
     if (!enrollment) {
-      // Auto-enroll if accessing
+      if (!isTestCourseAccessEnabled()) {
+        return res.status(403).json({
+          success: false,
+          message: 'You are not enrolled in this course.',
+        });
+      }
+
       enrollment = await Enrollment.create({
         student: req.user._id,
         studentName: req.user.name,
@@ -216,6 +230,18 @@ const submitQuiz = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Course not found' });
     }
 
+    let enrollment = await Enrollment.findOne({
+      student: req.user._id,
+      course: course._id,
+    });
+
+    if (!enrollment && !isTestCourseAccessEnabled()) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not enrolled in this course.',
+      });
+    }
+
     // Find the lesson with quiz
     let targetLesson = null;
     for (const mod of course.modules) {
@@ -228,6 +254,18 @@ const submitQuiz = async (req, res, next) => {
 
     if (!targetLesson) {
       return res.status(404).json({ success: false, message: 'Quiz not found for this lesson' });
+    }
+
+    if (!enrollment) {
+      enrollment = await Enrollment.create({
+        student: req.user._id,
+        studentName: req.user.name,
+        studentEmail: req.user.email,
+        course: course._id,
+      });
+      await Course.findByIdAndUpdate(course._id, {
+        $inc: { studentsCount: 1 },
+      });
     }
 
     const quiz = targetLesson.quiz;
@@ -251,11 +289,6 @@ const submitQuiz = async (req, res, next) => {
 
     const scorePercentage = Math.round((correctCount / questions.length) * 100);
     const passed = scorePercentage >= (quiz.passingScore || 70);
-
-    let enrollment = await Enrollment.findOne({
-      student: req.user._id,
-      course: courseId,
-    });
 
     if (enrollment) {
       // Record quiz score
@@ -340,17 +373,38 @@ const saveLessonNote = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Note text and lessonId are required' });
     }
 
+    let course;
+    if (courseId.match(/^[0-9a-fA-F]{24}$/)) {
+      course = await Course.findById(courseId);
+    } else {
+      course = await Course.findOne({ slug: courseId });
+    }
+
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
     let enrollment = await Enrollment.findOne({
       student: req.user._id,
-      course: courseId,
+      course: course._id,
     });
 
     if (!enrollment) {
+      if (!isTestCourseAccessEnabled()) {
+        return res.status(403).json({
+          success: false,
+          message: 'You are not enrolled in this course.',
+        });
+      }
+
       enrollment = await Enrollment.create({
         student: req.user._id,
         studentName: req.user.name,
         studentEmail: req.user.email,
-        course: courseId,
+        course: course._id,
+      });
+      await Course.findByIdAndUpdate(course._id, {
+        $inc: { studentsCount: 1 },
       });
     }
 
@@ -433,7 +487,7 @@ const getCertificate = async (req, res, next) => {
         courseTitle: enrollment.course.title,
         courseCategory: enrollment.course.category,
         courseLevel: enrollment.course.level,
-        instructorName: enrollment.course.instructor ? enrollment.course.instructor.name : 'EduPulse Academy',
+        instructorName: enrollment.course.instructor?.name || 'UAV X',
         instructorTitle: enrollment.course.instructor ? enrollment.course.instructor.headline : 'Lead Instructor',
         issueDate: enrollment.completedAt || enrollment.updatedAt,
         isValid: true,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
@@ -17,6 +17,7 @@ import {
   Sparkles,
   ArrowRight,
   Paperclip,
+  Download,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -34,6 +35,9 @@ export const CourseDetails = () => {
   const [course, setCourse] = useState(null);
   const [stats, setStats] = useState({});
   const [userEnrollment, setUserEnrollment] = useState({ isEnrolled: false });
+  const [testAccessEnabled, setTestAccessEnabled] = useState(false);
+  const [previewVideo, setPreviewVideo] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
   const [reviews, setReviews] = useState([]);
   const [expandedModules, setExpandedModules] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +48,7 @@ export const CourseDetails = () => {
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const previewRef = useRef(null);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -55,6 +60,13 @@ export const CourseDetails = () => {
           setCourse(courseRes.course);
           setStats(courseRes.stats || {});
           setUserEnrollment(courseRes.userEnrollment || { isEnrolled: false });
+          setTestAccessEnabled(courseRes.testAccessEnabled === true);
+
+          const firstFreeVideoPreview = (courseRes.course.modules || [])
+            .flatMap((module) => module.lessons || [])
+            .find((lesson) => lesson.type === 'video' && lesson.isFreePreview && lesson.videoUrl);
+          setPreviewVideo(firstFreeVideoPreview?.videoUrl || courseRes.course.previewVideo || '');
+          setPreviewTitle(firstFreeVideoPreview?.title || 'Introduction & Setup');
 
           // Expand first module by default
           if (courseRes.course?.modules?.length > 0) {
@@ -109,6 +121,22 @@ export const CourseDetails = () => {
     }
   };
 
+  const handleTestAccess = () => {
+    if (!isAuthenticated) {
+      addToast('Please login to access the test course', 'info');
+      navigate('/login');
+      return;
+    }
+
+    navigate(`/learn/${course._id}`);
+  };
+
+  const handlePreviewLesson = (lesson) => {
+    setPreviewVideo(lesson.videoUrl);
+    setPreviewTitle(lesson.title);
+    previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   const handlePaymentSuccess = (res) => {
     addToast('Payment successful! Redirecting to classroom...', 'success');
     navigate(`/learn/${res.enrollment.course}`);
@@ -146,6 +174,26 @@ export const CourseDetails = () => {
       setSubmittingReview(false);
     }
   };
+
+  const canAccessAllMaterials =
+    course &&
+    (userEnrollment.isEnrolled ||
+      (isAuthenticated && testAccessEnabled) ||
+      course.isFree ||
+      Number(course.price) === 0);
+  const visibleResources = course
+    ? [
+        ...(canAccessAllMaterials ? course.resources || [] : []),
+        ...(course.modules || []).flatMap((module) =>
+          (module.lessons || []).flatMap((lesson) =>
+            canAccessAllMaterials || lesson.isFreePreview ? lesson.resources || [] : [],
+          ),
+        ),
+      ].filter(
+        (resource, index, resources) =>
+          resource?.url && resources.findIndex((item) => item?.url === resource.url) === index,
+      )
+    : [];
 
   if (isLoading) {
     return (
@@ -236,23 +284,27 @@ export const CourseDetails = () => {
                     course.instructor?.avatar ||
                     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
                   }
-                  alt={course.instructor?.name}
+                  alt={course.instructor?.name || 'UAV X'}
                   style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover' }}
                 />
                 <div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: '600' }}>Created by {course.instructor?.name}</div>
+                  <div style={{ fontSize: '0.95rem', fontWeight: '600' }}>Created by {course.instructor?.name || 'UAV X'}</div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{course.instructor?.headline}</div>
                 </div>
               </div>
             </div>
 
             {/* Video Preview Card */}
-            <div>
+            <div ref={previewRef}>
               <div className="glass-panel" style={{ overflow: 'hidden', borderRadius: 'var(--radius-lg)' }}>
-                <VideoPlayer videoUrl={course.previewVideo} title={course.title} />
+                <VideoPlayer
+                  key={previewVideo}
+                  videoUrl={previewVideo}
+                  title={previewTitle || course.title}
+                />
                 <div style={{ padding: '1.2rem', textAlign: 'center', background: 'var(--bg-tertiary)' }}>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Previewing Lesson: <strong>Introduction & Setup</strong>
+                    Previewing Lesson: <strong>{previewTitle || 'Introduction & Setup'}</strong>
                   </span>
                 </div>
               </div>
@@ -383,6 +435,16 @@ export const CourseDetails = () => {
                               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                                 {l.duration || '10:00'}
                               </span>
+                              {l.type === 'video' && l.isFreePreview && l.videoUrl && (
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary btn-sm"
+                                  onClick={() => handlePreviewLesson(l)}
+                                  aria-label={`Watch free preview: ${l.title}`}
+                                >
+                                  <Play size={14} /> Watch preview
+                                </button>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -392,6 +454,40 @@ export const CourseDetails = () => {
                 })}
               </div>
             </div>
+
+            {visibleResources.length > 0 && (
+              <section className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2.5rem' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '1rem' }}>
+                  <Download size={19} color="var(--brand-primary)" />
+                  Lecture Resources & Downloadable Materials
+                </h3>
+                <div style={{ display: 'grid', gap: '0.6rem' }}>
+                  {visibleResources.map((resource, index) => (
+                    <a
+                      key={resource._id || `${resource.url}-${index}`}
+                      href={resource.url}
+                      download={resource.filename || true}
+                      target={/^https?:\/\//i.test(resource.url) ? '_blank' : undefined}
+                      rel={/^https?:\/\//i.test(resource.url) ? 'noopener noreferrer' : undefined}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '0.75rem',
+                        padding: '0.75rem 1rem',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--text-primary)',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <span>{resource.title || 'Course resource'}</span>
+                      <Download size={16} color="var(--brand-primary)" />
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Requirements & Target Audience */}
             <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2.5rem' }}>
@@ -576,6 +672,20 @@ export const CourseDetails = () => {
                     style={{ width: '100%', marginBottom: '1.2rem' }}
                   >
                     Pay with PayPal
+                  </button>
+                )}
+
+              {testAccessEnabled &&
+                !userEnrollment.isEnrolled &&
+                !course.isFree &&
+                course.price > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleTestAccess}
+                    className="btn btn-secondary btn-lg"
+                    style={{ width: '100%', marginBottom: '1.2rem' }}
+                  >
+                    Open course (test access)
                   </button>
                 )}
 

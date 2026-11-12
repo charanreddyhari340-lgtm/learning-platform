@@ -197,7 +197,7 @@ export const CertificateModal = ({ isOpen, onClose, certificate }) => {
                   marginBottom: '2px',
                 }}
               >
-                {certificate.instructorName || 'Dr. Sarah Jenkins'}
+                {certificate.instructorName || 'UAV X'}
               </p>
               <p style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Lead Instructor Signature

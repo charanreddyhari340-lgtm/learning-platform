@@ -49,7 +49,7 @@ export const Dashboard = () => {
       studentName: user?.name || 'Alex Morgan',
       courseTitle: enr.course?.title,
       courseCategory: enr.course?.category,
-      instructorName: enr.course?.instructor?.name || 'SkillForge Lead',
+      instructorName: enr.course?.instructor?.name || 'UAV X',
       issueDate: enr.completedAt || enr.updatedAt,
     });
     setCertModalOpen(true);
