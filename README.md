@@ -8,8 +8,7 @@ A full-stack **Learning Management System (LMS)** built with the **MERN stack** 
 |---|---|
 | **Live demo** | https://learning-platform-74pw6m0fz-charanreddyhari340-4940.vercel.app/ |
 | **Repository** | https://github.com/charanreddyhari340-lgtm/learning-platform |
-| **Documentation** | [`docs/SkillForge_Project_Documentation.pdf`](docs/SkillForge_Project_Documentation.pdf) |
-| **Presentation** | [`docs/`](docs/) |
+
 
 ## Team
 
@@ -19,7 +18,7 @@ A full-stack **Learning Management System (LMS)** built with the **MERN stack** 
 | K. Navaneeth | 99230040029 | https://github.com/dhanushkummara7|
 | C. Hari Charan Reddy | 99230041153 | https://github.com/charanreddyhari340-lgtm |
 | Allatipalli Vinod Babu | 99230040472 | https://github.com/allatipallivinodbabu-coder/learning|
-| A. Venkata Manikanta | 99230041151 | [GitHub link] |
+| A. Venkata Manikanta | 99230041151 | https://github.com/manikantayadava06-jpg|
 | S. Akash | 99230040753 | https://github.com/samineniakash-beep |
 
 Trainer / Guide: **Ajusha**
