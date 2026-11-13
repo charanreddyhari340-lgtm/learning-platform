@@ -6,7 +6,7 @@ A full-stack **Learning Management System (LMS)** built with the **MERN stack** 
 
 | | |
 |---|---|
-| **Live demo** | [Paste live link here] |
+| **Live demo** | https://learning-platform-74pw6m0fz-charanreddyhari340-4940.vercel.app/ |
 | **Repository** | https://github.com/charanreddyhari340-lgtm/learning-platform |
 | **Documentation** | [`docs/SkillForge_Project_Documentation.pdf`](docs/SkillForge_Project_Documentation.pdf) |
 | **Presentation** | [`docs/`](docs/) |
@@ -15,12 +15,12 @@ A full-stack **Learning Management System (LMS)** built with the **MERN stack** 
 
 | Name | Registration No. | GitHub |
 |---|---|---|
-| K. Dhanush | [Reg. No.] | [GitHub link] |
-| K. Navaneeth | 99230040029 | [GitHub link] |
+| K. Dhanush | [Reg. No.] | https://github.com/dhanushkummara7|
+| K. Navaneeth | 99230040029 | https://github.com/dhanushkummara7|
 | C. Hari Charan Reddy | 99230041153 | https://github.com/charanreddyhari340-lgtm |
-| Allatipalli Vinod Babu | 99230040472 | [GitHub link] |
+| Allatipalli Vinod Babu | 99230040472 | https://github.com/allatipallivinodbabu-coder/learning|
 | A. Venkata Manikanta | 99230041151 | [GitHub link] |
-| S. Akash | 99230040753 | [GitHub link] |
+| S. Akash | 99230040753 | https://github.com/samineniakash-beep |
 
 Trainer / Guide: **Ajusha**
 
