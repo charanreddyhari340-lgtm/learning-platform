@@ -100,7 +100,7 @@ npm run install-all
 npm run dev
 ```
 
-Open **http://localhost:3000**.
+Open **[http://localhost:3000](http://localhost:3000/)**.
 
 If `MONGODB_URI` is not set, or it is unreachable in development, the server falls back to an in-memory MongoDB instance and seeds demo data on first start.
 
