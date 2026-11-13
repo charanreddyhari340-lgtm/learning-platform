@@ -14,6 +14,8 @@ const fs = require('fs');
 dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config();
 
+const { uploadsPath } = require('./config/uploads');
+
 const app = express();
 
 let dbInitialization;
@@ -66,8 +68,7 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Uploaded documents are forced to download; other uploads remain inline for media playback.
-const uploadsPath = path.join(__dirname, 'uploads');
+// PDFs display inline; other uploaded documents download and media stays inline.
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
 }
@@ -75,7 +76,17 @@ app.use(
   '/uploads/documents',
   express.static(path.join(uploadsPath, 'documents'), {
     setHeaders: (res, filePath) => {
-      res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
+      const isPdf = path.extname(filePath).toLowerCase() === '.pdf';
+      const fileName = path.basename(filePath);
+
+      if (isPdf) {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        return;
+      }
+
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
     },
   }),
 );
@@ -103,7 +114,9 @@ const clientDistPath = path.join(__dirname, '../client/dist');
 if (fs.existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath));
   app.get('*', (req, res, next) => {
-    if (req.originalUrl.startsWith('/api')) return next();
+    if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads') || path.extname(req.path)) {
+      return next();
+    }
     res.sendFile(path.join(clientDistPath, 'index.html'));
   });
 } else {

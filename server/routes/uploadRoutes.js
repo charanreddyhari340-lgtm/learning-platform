@@ -5,14 +5,10 @@ const path = require('path');
 const fs = require('fs');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
+const { uploadsPath, documentsPath, videosPath, imagesPath } = require('../config/uploads');
 
 // Ensure upload subdirectories exist
-const uploadBaseDir = path.join(__dirname, '../uploads');
-const documentsDir = path.join(uploadBaseDir, 'documents');
-const videosDir = path.join(uploadBaseDir, 'videos');
-const imagesDir = path.join(uploadBaseDir, 'images');
-
-[uploadBaseDir, documentsDir, videosDir, imagesDir].forEach((dir) => {
+[uploadsPath, documentsPath, videosPath, imagesPath].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -54,7 +50,7 @@ const getDocType = (ext) => {
 
 // 1. Document Upload
 const documentUpload = multer({
-  storage: createStorage(documentsDir),
+  storage: createStorage(documentsPath),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB limit
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
@@ -74,7 +70,7 @@ const documentUpload = multer({
 
 // 2. Video Upload
 const videoUpload = multer({
-  storage: createStorage(videosDir),
+  storage: createStorage(videosPath),
   limits: { fileSize: 300 * 1024 * 1024 }, // 300 MB limit
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
@@ -89,7 +85,7 @@ const videoUpload = multer({
 
 // 3. Image Upload
 const imageUpload = multer({
-  storage: createStorage(imagesDir),
+  storage: createStorage(imagesPath),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();

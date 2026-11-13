@@ -434,25 +434,31 @@ export const CourseLearn = () => {
             </h3>
             {currentLesson.resources && currentLesson.resources.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                {currentLesson.resources.map((res, rIdx) => (
-                  <a
-                    key={rIdx}
-                    href={res.url}
-                    download={res.filename || true}
-                    aria-label={`Download ${res.title || 'lecture resource'}`}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '0.75rem 1rem',
-                      background: 'var(--bg-tertiary)',
-                      borderRadius: 'var(--radius-sm)',
-                      border: '1px solid var(--border-subtle)',
-                      color: 'var(--text-primary)',
-                      fontSize: '0.875rem',
-                      transition: 'all 0.15s ease',
-                    }}
-                  >
+                {currentLesson.resources.map((res, rIdx) => {
+                  const isPdf = (res.type || '').toLowerCase() === 'pdf' || /\.pdf$/i.test(res.url || '');
+                  const externalLink = /^https?:\/\//i.test(res.url || '');
+
+                  return (
+                    <a
+                      key={rIdx}
+                      href={res.url}
+                      download={isPdf ? undefined : (res.filename || true)}
+                      target={isPdf || externalLink ? '_blank' : undefined}
+                      rel={isPdf || externalLink ? 'noopener noreferrer' : undefined}
+                      aria-label={isPdf ? `Open ${res.title || 'lecture resource'}` : `Download ${res.title || 'lecture resource'}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0.75rem 1rem',
+                        background: 'var(--bg-tertiary)',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border-subtle)',
+                        color: 'var(--text-primary)',
+                        fontSize: '0.875rem',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                       <Download size={16} color="var(--brand-primary)" />
                       <span style={{ fontWeight: '600' }}>{res.title || 'Lecture Resource File'}</span>
@@ -463,9 +469,10 @@ export const CourseLearn = () => {
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({res.size})</span>
                       )}
                     </div>
-                    <ExternalLink size={14} color="var(--text-muted)" />
-                  </a>
-                ))}
+                      <ExternalLink size={14} color="var(--text-muted)" />
+                    </a>
+                  );
+                })}
               </div>
             ) : (
               <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
@@ -537,31 +544,38 @@ export const CourseLearn = () => {
               </div>
               {course.resources?.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  {course.resources.map((res, rIdx) => (
-                    <a
-                      key={rIdx}
-                      href={res.url}
-                      download={res.filename || true}
-                      aria-label={`Download ${res.title || 'course resource'}`}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '0.4rem 0.6rem',
-                        background: 'var(--bg-secondary)',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                        color: 'var(--text-primary)',
-                        textDecoration: 'none',
-                        border: '1px solid var(--border-subtle)',
-                      }}
-                    >
+                  {course.resources.map((res, rIdx) => {
+                    const isPdf = (res.type || '').toLowerCase() === 'pdf' || /\.pdf$/i.test(res.url || '');
+                    const externalLink = /^https?:\/\//i.test(res.url || '');
+
+                    return (
+                      <a
+                        key={rIdx}
+                        href={res.url}
+                        download={isPdf ? undefined : (res.filename || true)}
+                        target={isPdf || externalLink ? '_blank' : undefined}
+                        rel={isPdf || externalLink ? 'noopener noreferrer' : undefined}
+                        aria-label={isPdf ? `Open ${res.title || 'course resource'}` : `Download ${res.title || 'course resource'}`}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '0.4rem 0.6rem',
+                          background: 'var(--bg-secondary)',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          color: 'var(--text-primary)',
+                          textDecoration: 'none',
+                          border: '1px solid var(--border-subtle)',
+                        }}
+                      >
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '170px' }}>
                         {res.title}
                       </span>
                       <Download size={13} color="var(--brand-primary)" style={{ flexShrink: 0 }} />
                     </a>
-                  ))}
+                  );
+                  })}
                 </div>
               ) : (
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', margin: 0 }}>

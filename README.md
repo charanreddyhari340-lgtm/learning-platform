@@ -103,7 +103,7 @@ npm run dev
 
 Open **http://localhost:3000**.
 
-If `MONGODB_URI` is not set, the server starts an in-memory MongoDB and seeds demo data on first start.
+If `MONGODB_URI` is not set, or it is unreachable in development, the server falls back to an in-memory MongoDB instance and seeds demo data on first start.
 
 **Production build**
 
@@ -123,6 +123,7 @@ npm start        # serves the API and the built client on http://localhost:5000
 | `MONGODB_URI` | MongoDB connection string (empty = in-memory database) |
 | `JWT_SECRET` | Secret used to sign tokens |
 | `PORT` | API port, default 5000 |
+| `UPLOADS_DIR` | Directory for uploaded documents, videos, and images (set this to the Render persistent disk mount path in production) |
 | `CORS_ORIGIN` | Comma-separated allowed origins |
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | PayPal API credentials |
 | `PAYPAL_MODE`, `PAYPAL_CURRENCY` | `sandbox` or `live`; currency (default `INR`) |
@@ -157,8 +158,12 @@ to `https://learning-platform-j8aa.onrender.com`.
    building if enabling PayPal checkout.
 
 Upload documents through the deployed instructor dashboard so they reach the
-Render API. Render's local filesystem may be cleared on restart or redeploy;
-use a persistent disk or object storage if uploaded materials must survive those events.
+Render API. Render's local filesystem may be cleared on restart or redeploy.
+To keep uploads on a Render persistent disk, attach a disk mounted at
+`/var/data` to the API service and set `UPLOADS_DIR=/var/data` in that
+service's Environment settings. Redeploy the API after changing the setting.
+Files uploaded before the disk was configured are not copied automatically;
+upload them again through the instructor dashboard.
 
 Do not commit database credentials or other secrets to the repository.
 

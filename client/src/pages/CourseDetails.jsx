@@ -490,29 +490,35 @@ export const CourseDetails = () => {
                 </h3>
                 {visibleResources.length > 0 ? (
                   <div style={{ display: 'grid', gap: '0.6rem' }}>
-                    {visibleResources.map((resource, index) => (
-                      <a
-                        key={resource._id || `${resource.url}-${index}`}
-                        href={resource.url}
-                        download={resource.filename || true}
-                        target={/^https?:\/\//i.test(resource.url) ? '_blank' : undefined}
-                        rel={/^https?:\/\//i.test(resource.url) ? 'noopener noreferrer' : undefined}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '0.75rem',
-                          padding: '0.75rem 1rem',
-                          border: '1px solid var(--border-subtle)',
-                          borderRadius: 'var(--radius-sm)',
-                          color: 'var(--text-primary)',
-                          textDecoration: 'none',
-                        }}
-                      >
+                    {visibleResources.map((resource, index) => {
+                      const isPdf = (resource.type || '').toLowerCase() === 'pdf' || /\.pdf$/i.test(resource.url || '');
+                      const externalLink = /^https?:\/\//i.test(resource.url || '');
+
+                      return (
+                        <a
+                          key={resource._id || `${resource.url}-${index}`}
+                          href={resource.url}
+                          download={isPdf ? undefined : (resource.filename || true)}
+                          target={isPdf || externalLink ? '_blank' : undefined}
+                          rel={isPdf || externalLink ? 'noopener noreferrer' : undefined}
+                          aria-label={isPdf ? `Open ${resource.title || 'course resource'}` : `Download ${resource.title || 'course resource'}`}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '0.75rem',
+                            padding: '0.75rem 1rem',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: 'var(--radius-sm)',
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                          }}
+                        >
                         <span>{resource.title || 'Course resource'}</span>
                         <Download size={16} color="var(--brand-primary)" />
-                      </a>
-                    ))}
+                        </a>
+                      );
+                    })}
                   </div>
                 ) : (
                   <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
